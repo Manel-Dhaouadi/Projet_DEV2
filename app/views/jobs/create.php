@@ -5,30 +5,39 @@
 
         <form method="POST" class="auth-form">
             <div class="form-group">
-                <label>Titre du poste</label>
-                <input type="text" name="title" required placeholder="ex: Développeur Full Stack">
+                <label for="job-title">Titre du poste</label>
+                <input type="text" 
+                       id="job-title" 
+                       name="title" 
+                       required 
+                       placeholder="ex: Développeur Full Stack"
+                       autocomplete="off">
             </div>
 
             <div class="form-group">
-                <label>Description</label>
-                <textarea name="description" rows="6" required placeholder="Décrivez le poste, les missions, le profil recherché..."></textarea>
+                <label for="job-description">Description</label>
+                <textarea id="job-description" 
+                          name="description" 
+                          rows="6" 
+                          required 
+                          placeholder="Décrivez le poste, les missions, le profil recherché..."
+                          autocomplete="off"></textarea>
             </div>
 
             <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                 <div class="form-group">
-                    <label>Type de contrat</label>
-                    <select name="type" required>
+                    <label for="job-type">Type de contrat</label>
+                    <select id="job-type" name="type" required>
                         <option value="">Sélectionnez</option>
                         <option value="CDI">CDI</option>
                         <option value="Stage">Stage</option>
                         <option value="Alternance">Alternance</option>
-                        <option value="CDD">CDD</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label>Catégorie</label>
-                    <select name="category_id" required>
+                    <label for="job-category">Catégorie</label>
+                    <select id="job-category" name="category_id" required>
                         <option value="">Sélectionnez</option>
                         <?php foreach ($categories as $cat): ?>
                         <option value="<?= $cat['id'] ?>"><?= htmlspecialchars($cat['name']) ?></option>
@@ -39,19 +48,33 @@
 
             <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                 <div class="form-group">
-                    <label>Ville</label>
-                    <input type="text" name="city" required placeholder="ex: Tunis">
+                    <label for="job-city">Ville</label>
+                    <input type="text" 
+                           id="job-city" 
+                           name="city" 
+                           required 
+                           placeholder="ex: Tunis"
+                           autocomplete="off">
                 </div>
 
                 <div class="form-group">
-                    <label>Salaire (optionnel)</label>
-                    <input type="text" name="salary" placeholder="ex: 1500 DT">
+                    <label for="job-salary">Salaire (optionnel)</label>
+                    <input type="text" 
+                           id="job-salary" 
+                           name="salary" 
+                           placeholder="ex: 1500 DT"
+                           autocomplete="off">
                 </div>
             </div>
 
             <div class="form-group">
-                <label>Date limite</label>
-                <input type="date" name="deadline" required min="<?= date('Y-m-d') ?>">
+                <label for="job-deadline">Date limite</label>
+                <input type="date" 
+                       id="job-deadline" 
+                       name="deadline" 
+                       required 
+                       min="<?= date('Y-m-d') ?>"
+                       autocomplete="off">
             </div>
 
             <button type="submit" class="auth-btn">

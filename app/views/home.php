@@ -10,17 +10,22 @@
                 
                 <!-- Barre de recherche -->
                 <form action="index.php" method="GET" class="search-container">
-                    <input type="hidden" name="action" value="jobs">
-                    <div class="search-wrapper">
-                        <div class="search-input-group">
-                            <i class="fas fa-search search-icon"></i>
-                            <input type="text" name="keyword" placeholder="Titre du poste, mots-clés..." class="search-field">
-                        </div>
-                        <button type="submit" class="search-button">
-                            <i class="fas fa-search"></i> Rechercher
-                        </button>
-                    </div>
-                </form>
+    <input type="hidden" name="action" value="jobs">
+    <div class="search-wrapper">
+        <div class="search-input-group">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" 
+                   id="search-keyword"
+                   name="keyword" 
+                   placeholder="Titre du poste, mots-clés..." 
+                   class="search-field"
+                   autocomplete="off">
+        </div>
+        <button type="submit" class="search-button">
+            <i class="fas fa-search"></i> Rechercher
+        </button>
+    </div>
+</form>
 
                 <!-- Tags populaires -->
                 <div class="tags-container">

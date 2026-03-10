@@ -7,7 +7,6 @@ require_once "../app/models/Application.php";
 class DashboardController extends Controller {
 
     public function index() {
-        // Vérifier si l'utilisateur est connecté
         if (!isset($_SESSION['user'])) {
             header("Location: index.php?action=login");
             exit;

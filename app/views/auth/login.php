@@ -5,13 +5,23 @@
         
         <form method="POST" class="auth-form">
             <div class="form-group">
-                <label>Email</label>
-                <input type="email" name="email" placeholder="exemple@email.com" required>
+                <label for="login-email">Adresse email</label>
+                <input type="email" 
+                       id="login-email" 
+                       name="email" 
+                       placeholder="exemple@email.com" 
+                       required
+                       autocomplete="email">
             </div>
             
             <div class="form-group">
-                <label>Mot de passe</label>
-                <input type="password" name="password" placeholder="••••••••" required>
+                <label for="login-password">Mot de passe</label>
+                <input type="password" 
+                       id="login-password" 
+                       name="password" 
+                       placeholder="••••••••" 
+                       required
+                       autocomplete="current-password">
             </div>
             
             <button type="submit" class="auth-btn">

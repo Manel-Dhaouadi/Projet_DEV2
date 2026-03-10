@@ -56,6 +56,11 @@ class Router {
                 (new JobController())->delete();
                 break;
 
+            case "job":
+                require "../app/controllers/JobController.php";
+                (new JobController())->show();
+                break;
+
             /* ========= APPLICATIONS ========= */
             case "apply":
                 require "../app/controllers/ApplicationController.php";
@@ -81,6 +86,27 @@ class Router {
             case "deleteJobAdmin":
                 require "../app/controllers/AdminController.php";
                 (new AdminController())->deleteJob();
+                break;
+
+            /* ========= CATEGORIES (Admin) ========= */
+            case "admin-categories":
+                require "../app/controllers/AdminController.php";
+                (new AdminController())->categories();
+                break;
+
+            case "admin-add-category":
+                require "../app/controllers/AdminController.php";
+                (new AdminController())->addCategory();
+                break;
+
+            case "admin-edit-category":
+                require "../app/controllers/AdminController.php";
+                (new AdminController())->editCategory();
+                break;
+
+            case "admin-delete-category":
+                require "../app/controllers/AdminController.php";
+                (new AdminController())->deleteCategory();
                 break;
 
             /* ========= DEFAULT 404 ========= */
