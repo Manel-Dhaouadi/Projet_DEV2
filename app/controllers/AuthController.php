@@ -8,12 +8,14 @@ class AuthController extends Controller {
 
         if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
+            // Vérifier que tous les champs existent
             $data = [
-                'name'=>$_POST['name'],
-                'email'=>$_POST['email'],
-                'password'=>password_hash($_POST['password'], PASSWORD_DEFAULT),
-                'role'=>$_POST['role'],
-                'city'=>$_POST['city']
+                'name' => $_POST['name'] ?? '',
+                'email' => $_POST['email'] ?? '',
+                'password' => password_hash($_POST['password'] ?? '', PASSWORD_DEFAULT),
+                'role' => $_POST['role'] ?? 'candidate', // Valeur par défaut si non défini
+                'city' => $_POST['city'] ?? '',
+                'phone' => $_POST['phone'] ?? '' // Ajout du champ phone
             ];
 
             $user = new User();
@@ -31,14 +33,19 @@ class AuthController extends Controller {
         if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             $userModel = new User();
-            $user = $userModel->findByEmail($_POST['email']);
+            $user = $userModel->findByEmail($_POST['email'] ?? '');
 
-            if($user && password_verify($_POST['password'],$user['password'])) {
+            if($user && password_verify($_POST['password'] ?? '', $user['password'])) {
 
                 $_SESSION['user'] = $user;
                 header("Location: index.php?action=dashboard");
                 exit;
             }
+            
+            // Si erreur de connexion
+            $_SESSION['error'] = "Email ou mot de passe incorrect";
+            header("Location: index.php?action=login");
+            exit;
         }
 
         $this->view("auth/login");

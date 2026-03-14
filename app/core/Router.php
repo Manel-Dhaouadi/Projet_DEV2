@@ -78,6 +78,12 @@ class Router {
                 (new AdminController())->index();
                 break;
 
+            /* ========= ADMIN DASHBOARD ========= */
+            case "admin-dashboard":
+                require "../app/controllers/AdminController.php";
+                (new AdminController())->dashboard();
+                break;
+
             case "deleteUser":
                 require "../app/controllers/AdminController.php";
                 (new AdminController())->deleteUser();
@@ -88,30 +94,25 @@ class Router {
                 (new AdminController())->deleteJob();
                 break;
 
-            /* ========= CATEGORIES (Admin) ========= */
-            case "admin-categories":
+            /* ========= ADMIN EDIT ========= */
+            case "admin-edit-user":
                 require "../app/controllers/AdminController.php";
-                (new AdminController())->categories();
+                (new AdminController())->editUser();
                 break;
 
-            case "admin-add-category":
+            case "admin-edit-job":
                 require "../app/controllers/AdminController.php";
-                (new AdminController())->addCategory();
+                (new AdminController())->editJob();
                 break;
 
-            case "admin-edit-category":
+            /* ========= ADMIN AJOUT ========= */
+            case "admin-add-user":
                 require "../app/controllers/AdminController.php";
-                (new AdminController())->editCategory();
-                break;
-
-            case "admin-delete-category":
-                require "../app/controllers/AdminController.php";
-                (new AdminController())->deleteCategory();
+                (new AdminController())->addUser();
                 break;
 
             /* ========= DEFAULT 404 ========= */
             default:
-                // Appelle un controller d'erreur pour afficher une 404 propre
                 require "../app/controllers/ErrorController.php";
                 (new ErrorController())->index();
         }

@@ -1,4 +1,4 @@
-// Mode sombre
+// ===== MODE SOMBRE =====
 class DarkMode {
     constructor() {
         this.toggle = document.getElementById('darkToggle');
@@ -10,7 +10,9 @@ class DarkMode {
             document.body.classList.add('dark-mode');
         }
         
-        this.toggle?.addEventListener('click', () => this.toggleDarkMode());
+        if (this.toggle) {
+            this.toggle.addEventListener('click', () => this.toggleDarkMode());
+        }
     }
     
     toggleDarkMode() {
@@ -21,7 +23,45 @@ class DarkMode {
     }
 }
 
-// Upload CV
+// ===== GESTION DES ONGLETS DANS LE DASHBOARD ADMIN =====
+function showTab(tabId) {
+    // Cacher tous les tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Désactiver tous les boutons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Afficher le tab sélectionné
+    document.getElementById(tabId).classList.add('active');
+    
+    // Activer le bouton correspondant (celui qui a été cliqué)
+    if (event && event.target) {
+        event.target.classList.add('active');
+    }
+}
+
+// ===== RECHERCHE UTILISATEURS (DASHBOARD ADMIN) =====
+function initUserSearch() {
+    const searchUsers = document.getElementById('searchUsers');
+    
+    if (searchUsers) {
+        searchUsers.addEventListener('keyup', function() {
+            let searchValue = this.value.toLowerCase();
+            let rows = document.querySelectorAll('#users-tab tbody tr');
+            
+            rows.forEach(row => {
+                let text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchValue) ? '' : 'none';
+            });
+        });
+    }
+}
+
+// ===== UPLOAD CV =====
 class FileUpload {
     constructor() {
         this.dropZone = document.getElementById('cvUpload');
@@ -48,15 +88,15 @@ class FileUpload {
     
     handleFiles(files) {
         if (files[0]?.type === 'application/pdf') {
-            // Traitement du fichier
             console.log('Fichier accepté:', files[0].name);
+            Notifications.show('CV uploadé avec succès !', 'success');
         } else {
-            alert('Veuillez uploader un fichier PDF');
+            Notifications.show('Veuillez uploader un fichier PDF', 'danger');
         }
     }
 }
 
-// Recherche en temps réel
+// ===== RECHERCHE EN TEMPS RÉEL =====
 class LiveSearch {
     constructor() {
         this.searchInput = document.getElementById('searchJobs');
@@ -75,18 +115,13 @@ class LiveSearch {
     
     search() {
         const keyword = this.searchInput.value;
-        // Appel AJAX pour la recherche
-        fetch(`/api/search?q=${keyword}`)
-            .then(response => response.json())
-            .then(data => this.displayResults(data));
-    }
-    
-    displayResults(data) {
-        // Afficher les résultats
+        // Simulation de recherche (à remplacer par un vrai appel AJAX)
+        console.log('Recherche pour:', keyword);
+        Notifications.show('Recherche en cours...', 'info');
     }
 }
 
-// Notifications
+// ===== NOTIFICATIONS =====
 class Notifications {
     static show(message, type = 'success') {
         const alert = document.createElement('div');
@@ -114,18 +149,22 @@ class Notifications {
     }
 }
 
-// Initialisation
-document.addEventListener('DOMContentLoaded', () => {
-    new DarkMode();
-    new FileUpload();
-    new LiveSearch();
-    
-    // Confirmations de suppression
-    document.querySelectorAll('.delete-btn').forEach(btn => {
+// ===== CONFIRMATIONS DE SUPPRESSION =====
+function setupDeleteConfirmations() {
+    document.querySelectorAll('.delete-btn, a[href*="delete"]').forEach(btn => {
         btn.addEventListener('click', (e) => {
             if (!confirm('Êtes-vous sûr de vouloir supprimer cet élément ?')) {
                 e.preventDefault();
             }
         });
     });
+}
+
+// ===== INITIALISATION GLOBALE =====
+document.addEventListener('DOMContentLoaded', () => {
+    new DarkMode();
+    new FileUpload();
+    new LiveSearch();
+    initUserSearch();
+    setupDeleteConfirmations();
 });

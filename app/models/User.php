@@ -44,6 +44,21 @@ class User extends Model {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    // ========== METTRE À JOUR UN UTILISATEUR ==========
+    public function update($id, $data) {
+        $sql = "UPDATE users 
+                SET name = :name, 
+                    email = :email, 
+                    role = :role, 
+                    city = :city, 
+                    phone = :phone 
+                WHERE id = :id";
+        
+        $data['id'] = $id;
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute($data);
+    }
+
     // Supprimer un utilisateur
     public function delete($id) {
         $stmt = $this->conn->prepare("DELETE FROM users WHERE id = ?");

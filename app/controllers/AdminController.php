@@ -1,10 +1,9 @@
 <?php
 require_once "../app/core/Controller.php";
-require_once "../app/models/Category.php";
+require_once "../app/models/User.php";
+require_once "../app/models/Job.php";
 
 class AdminController extends Controller {
-    
-    private $categoryModel;
 
     public function __construct() {
         // Vérifier si l'utilisateur est admin
@@ -12,76 +11,210 @@ class AdminController extends Controller {
             header("Location: index.php?action=login");
             exit;
         }
-        
-        $this->categoryModel = new Category();
     }
 
-    public function categories() {
+    // ========== PAGE ADMIN SIMPLE ==========
+    public function index() {
+        $userModel = new User();
+        $jobModel = new Job();
+        
         $data = [
-            'categories' => $this->categoryModel->getAllCategories()
+            'users' => $userModel->getAllUsers(),
+            'jobs' => $jobModel->getAllJobs(),
+            'stats' => [
+                'totalUsers' => $userModel->countUsers(),
+                'totalRecruiters' => $userModel->countByRole('recruiter'),
+                'totalCandidates' => $userModel->countByRole('candidate'),
+                'totalJobs' => $jobModel->count()
+            ]
         ];
         
-        $this->view("admin/categories", $data);
+        $this->view("admin/index", $data);
     }
 
-    public function addCategory() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = [
-                'name' => $_POST['name'] ?? '',
-                'icon' => $_POST['icon'] ?? 'fa-folder',
-                'color' => $_POST['color'] ?? '#0a66c2'
-            ];
+    // ========== DASHBOARD ADMIN COMPLET ==========
+    public function dashboard() {
+        $userModel = new User();
+        $jobModel = new Job();
+        
+        $data = [
+            'users' => $userModel->getAllUsers(),
+            'jobs' => $jobModel->getAllJobs(),
+            'stats' => [
+                'totalUsers' => $userModel->countUsers(),
+                'totalRecruiters' => $userModel->countByRole('recruiter'),
+                'totalCandidates' => $userModel->countByRole('candidate'),
+                'totalJobs' => $jobModel->count()
+            ]
+        ];
+        
+        $this->view("dashboard/admin", $data);
+    }
 
-            if ($this->categoryModel->create($data)) {
-                $_SESSION['success'] = 'Catégorie ajoutée avec succès';
-            } else {
-                $_SESSION['error'] = 'Erreur lors de l\'ajout';
+    // ========== AJOUTER UN UTILISATEUR ==========
+    public function addUser() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $userModel = new User();
+            
+            // Vérifier si l'email existe déjà
+            $existingUser = $userModel->findByEmail($_POST['email'] ?? '');
+            if ($existingUser) {
+                $_SESSION['error'] = "Cet email est déjà utilisé";
+                header("Location: index.php?action=admin-add-user");
+                exit;
             }
             
-            header("Location: index.php?action=admin-categories");
+            $data = [
+                'name' => $_POST['name'] ?? '',
+                'email' => $_POST['email'] ?? '',
+                'password' => password_hash($_POST['password'] ?? '123456', PASSWORD_DEFAULT),
+                'role' => $_POST['role'] ?? 'candidate',
+                'city' => $_POST['city'] ?? '',
+                'phone' => $_POST['phone'] ?? ''
+            ];
+
+            if ($userModel->create($data)) {
+                $_SESSION['success'] = "Utilisateur ajouté avec succès";
+            } else {
+                $_SESSION['error'] = "Erreur lors de l'ajout";
+            }
+            
+            // REDIRECTION VERS LE DASHBOARD
+            header("Location: index.php?action=admin-dashboard");
             exit;
         }
         
-        $this->view("admin/add-category");
+        $this->view("admin/add-user");
     }
 
-    public function editCategory() {
+    // ========== MODIFIER UN UTILISATEUR ==========
+    public function editUser() {
         $id = $_GET['id'] ?? 0;
+        $userModel = new User();
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
                 'name' => $_POST['name'] ?? '',
-                'icon' => $_POST['icon'] ?? 'fa-folder',
-                'color' => $_POST['color'] ?? '#0a66c2'
+                'email' => $_POST['email'] ?? '',
+                'role' => $_POST['role'] ?? '',
+                'city' => $_POST['city'] ?? '',
+                'phone' => $_POST['phone'] ?? ''
             ];
 
-            if ($this->categoryModel->update($id, $data)) {
-                $_SESSION['success'] = 'Catégorie modifiée avec succès';
+            // Vérifier si l'email existe déjà (sauf pour l'utilisateur actuel)
+            $existingUser = $userModel->findByEmail($data['email']);
+            if ($existingUser && $existingUser['id'] != $id) {
+                $_SESSION['error'] = "Cet email est déjà utilisé par un autre utilisateur";
+                header("Location: index.php?action=admin-edit-user&id=$id");
+                exit;
+            }
+
+            // Ne pas modifier le rôle de l'admin connecté
+            if ($id == $_SESSION['user']['id'] && $data['role'] !== $_SESSION['user']['role']) {
+                $_SESSION['error'] = "Vous ne pouvez pas changer votre propre rôle";
             } else {
-                $_SESSION['error'] = 'Erreur lors de la modification';
+                if ($userModel->update($id, $data)) {
+                    $_SESSION['success'] = "Utilisateur modifié avec succès";
+                    
+                    // Si l'utilisateur modifié est celui connecté, mettre à jour la session
+                    if ($id == $_SESSION['user']['id']) {
+                        $updatedUser = $userModel->find($id);
+                        $_SESSION['user'] = $updatedUser;
+                    }
+                } else {
+                    $_SESSION['error'] = "Erreur lors de la modification";
+                }
             }
             
-            header("Location: index.php?action=admin-categories");
+            // REDIRECTION VERS LE DASHBOARD
+            header("Location: index.php?action=admin-dashboard");
             exit;
         }
         
-        $data = [
-            'category' => $this->categoryModel->find($id)
-        ];
+        $user = $userModel->find($id);
+        if (!$user) {
+            $_SESSION['error'] = "Utilisateur non trouvé";
+            header("Location: index.php?action=admin-dashboard");
+            exit;
+        }
         
-        $this->view("admin/edit-category", $data);
+        $this->view("admin/edit-user", ['user' => $user]);
     }
 
-    public function deleteCategory() {
+    // ========== MODIFIER UNE OFFRE ==========
+    public function editJob() {
         $id = $_GET['id'] ?? 0;
+        $jobModel = new Job();
         
-        if ($this->categoryModel->delete($id)) {
-            $_SESSION['success'] = 'Catégorie supprimée';
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = [
+                'title' => $_POST['title'] ?? '',
+                'description' => $_POST['description'] ?? '',
+                'type' => $_POST['type'] ?? '',
+                'city' => $_POST['city'] ?? '',
+                'deadline' => $_POST['deadline'] ?? '',
+                'salary' => $_POST['salary'] ?? ''
+            ];
+
+            if ($jobModel->update($id, $data)) {
+                $_SESSION['success'] = "Offre modifiée avec succès";
+            } else {
+                $_SESSION['error'] = "Erreur lors de la modification";
+            }
+            
+            // REDIRECTION VERS LE DASHBOARD
+            header("Location: index.php?action=admin-dashboard");
+            exit;
+        }
+        
+        $job = $jobModel->find($id);
+        if (!$job) {
+            $_SESSION['error'] = "Offre non trouvée";
+            header("Location: index.php?action=admin-dashboard");
+            exit;
+        }
+        
+        $this->view("admin/edit-job", ['job' => $job]);
+    }
+
+    // ========== SUPPRIMER UN UTILISATEUR ==========
+    public function deleteUser() {
+        $id = $_GET['id'] ?? 0;
+        $userModel = new User();
+        
+        // Empêcher l'admin de se supprimer lui-même
+        if ($id == $_SESSION['user']['id']) {
+            $_SESSION['error'] = "Vous ne pouvez pas supprimer votre propre compte";
         } else {
-            $_SESSION['error'] = 'Erreur lors de la suppression';
+            $user = $userModel->find($id);
+            if ($user) {
+                $userModel->delete($id);
+                $_SESSION['success'] = "Utilisateur supprimé avec succès";
+            } else {
+                $_SESSION['error'] = "Utilisateur non trouvé";
+            }
         }
         
-        header("Location: index.php?action=admin-categories");
+        // REDIRECTION VERS LE DASHBOARD
+        header("Location: index.php?action=admin-dashboard");
+        exit;
+    }
+
+    // ========== SUPPRIMER UNE OFFRE ==========
+    public function deleteJob() {
+        $id = $_GET['id'] ?? 0;
+        $jobModel = new Job();
+        
+        $job = $jobModel->find($id);
+        if ($job) {
+            $jobModel->delete($id);
+            $_SESSION['success'] = "Offre supprimée avec succès";
+        } else {
+            $_SESSION['error'] = "Offre non trouvée";
+        }
+        
+        // REDIRECTION VERS LE DASHBOARD
+        header("Location: index.php?action=admin-dashboard");
         exit;
     }
 }

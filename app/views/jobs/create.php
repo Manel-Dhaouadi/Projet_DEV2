@@ -3,6 +3,11 @@
         <h2>Publier une offre</h2>
         <p class="auth-subtitle">Remplissez les informations ci-dessous</p>
 
+        <?php if (isset($_SESSION['error'])): ?>
+            <div class="alert alert-danger"><?= $_SESSION['error'] ?></div>
+            <?php unset($_SESSION['error']); ?>
+        <?php endif; ?>
+
         <form method="POST" class="auth-form">
             <div class="form-group">
                 <label for="job-title">Titre du poste</label>
@@ -24,47 +29,33 @@
                           autocomplete="off"></textarea>
             </div>
 
-            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                <div class="form-group">
-                    <label for="job-type">Type de contrat</label>
-                    <select id="job-type" name="type" required>
-                        <option value="">Sélectionnez</option>
-                        <option value="CDI">CDI</option>
-                        <option value="Stage">Stage</option>
-                        <option value="Alternance">Alternance</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="job-category">Catégorie</label>
-                    <select id="job-category" name="category_id" required>
-                        <option value="">Sélectionnez</option>
-                        <?php foreach ($categories as $cat): ?>
-                        <option value="<?= $cat['id'] ?>"><?= htmlspecialchars($cat['name']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+            <div class="form-group">
+                <label for="job-type">Type de contrat</label>
+                <select id="job-type" name="type" required>
+                    <option value="">Sélectionnez</option>
+                    <option value="CDI">CDI</option>
+                    <option value="Stage">Stage</option>
+                    <option value="Alternance">Alternance</option>
+                </select>
             </div>
 
-            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                <div class="form-group">
-                    <label for="job-city">Ville</label>
-                    <input type="text" 
-                           id="job-city" 
-                           name="city" 
-                           required 
-                           placeholder="ex: Tunis"
-                           autocomplete="off">
-                </div>
+            <div class="form-group">
+                <label for="job-city">Ville</label>
+                <input type="text" 
+                       id="job-city" 
+                       name="city" 
+                       required 
+                       placeholder="ex: Tunis"
+                       autocomplete="off">
+            </div>
 
-                <div class="form-group">
-                    <label for="job-salary">Salaire (optionnel)</label>
-                    <input type="text" 
-                           id="job-salary" 
-                           name="salary" 
-                           placeholder="ex: 1500 DT"
-                           autocomplete="off">
-                </div>
+            <div class="form-group">
+                <label for="job-salary">Salaire (optionnel)</label>
+                <input type="text" 
+                       id="job-salary" 
+                       name="salary" 
+                       placeholder="ex: 1500 DT"
+                       autocomplete="off">
             </div>
 
             <div class="form-group">

@@ -4,23 +4,22 @@ require_once "../app/core/Model.php";
 class Job extends Model {
     protected $table = 'jobs';
 
-    /* ================= CONSTRUCTEUR ================= */
     public function __construct() {
         parent::__construct();
     }
 
-    /* ================= CREATE ================= */
+    // CREATE
     public function create($data) {
         $sql = "INSERT INTO jobs
-                (recruiter_id, title, description, type, city, deadline, salary, category_id, featured, created_at)
+                (recruiter_id, title, description, type, city, deadline, salary, featured, created_at)
                 VALUES
-                (:recruiter_id, :title, :description, :type, :city, :deadline, :salary, :category_id, :featured, NOW())";
+                (:recruiter_id, :title, :description, :type, :city, :deadline, :salary, :featured, :created_at)";
 
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute($data);
     }
 
-    /* ================= FIND ================= */
+    // FIND
     public function find($id) {
         $sql = "SELECT j.*, u.name as company_name 
                 FROM jobs j 
@@ -32,7 +31,7 @@ class Job extends Model {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    /* ================= UPDATE ================= */
+    // UPDATE
     public function update($id, $data) {
         $sql = "UPDATE jobs 
                 SET title = :title, 
@@ -40,8 +39,7 @@ class Job extends Model {
                     type = :type, 
                     city = :city, 
                     deadline = :deadline, 
-                    salary = :salary, 
-                    category_id = :category_id 
+                    salary = :salary
                 WHERE id = :id";
         
         $data['id'] = $id;
@@ -49,13 +47,13 @@ class Job extends Model {
         return $stmt->execute($data);
     }
 
-    /* ================= DELETE ================= */
+    // DELETE
     public function delete($id) {
         $stmt = $this->conn->prepare("DELETE FROM jobs WHERE id = ?");
         return $stmt->execute([$id]);
     }
 
-    /* ================= SEARCH ================= */
+    // SEARCH
     public function search($filters = []) {
         $sql = "SELECT j.*, u.name as company_name 
                 FROM jobs j 
@@ -79,11 +77,6 @@ class Job extends Model {
             $params['city'] = "%{$filters['city']}%";
         }
 
-        if (!empty($filters['category'])) {
-            $sql .= " AND j.category_id = :category";
-            $params['category'] = $filters['category'];
-        }
-
         $sql .= " ORDER BY j.created_at DESC";
 
         $stmt = $this->conn->prepare($sql);
@@ -91,7 +84,7 @@ class Job extends Model {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /* ================= COUNT ================= */
+    // COUNT
     public function count($filters = []) {
         $sql = "SELECT COUNT(*) FROM jobs WHERE 1=1";
         $params = [];
@@ -118,7 +111,7 @@ class Job extends Model {
         return $result ?: 0;
     }
 
-    /* ================= COUNT COMPANIES ================= */
+    // COUNT COMPANIES
     public function countCompanies() {
         $sql = "SELECT COUNT(DISTINCT recruiter_id) FROM jobs";
         $stmt = $this->conn->query($sql);
@@ -127,7 +120,7 @@ class Job extends Model {
         return $result ?: 0;
     }
 
-    /* ================= COUNT CANDIDATES ================= */
+    // COUNT CANDIDATES
     public function countCandidates() {
         $sql = "SELECT COUNT(*) FROM users WHERE role = 'candidate'";
         $stmt = $this->conn->query($sql);
@@ -136,7 +129,7 @@ class Job extends Model {
         return $result ?: 0;
     }
 
-    /* ================= GET FEATURED JOBS ================= */
+    // GET FEATURED JOBS
     public function getFeatured($limit = 3) {
         $sql = "SELECT j.*, u.name as company_name 
                 FROM jobs j 
@@ -152,7 +145,7 @@ class Job extends Model {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /* ================= GET RECENT JOBS ================= */
+    // GET RECENT JOBS
     public function getRecent($limit = 6) {
         $sql = "SELECT j.*, u.name as company_name 
                 FROM jobs j 
@@ -167,7 +160,7 @@ class Job extends Model {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /* ================= GET ALL JOBS ================= */
+    // GET ALL JOBS
     public function getAllJobs() {
         $sql = "SELECT j.*, u.name as company_name 
                 FROM jobs j 
@@ -178,7 +171,7 @@ class Job extends Model {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /* ================= GET JOBS BY RECRUITER ================= */
+    // GET JOBS BY RECRUITER
     public function getJobsByRecruiter($recruiterId) {
         $sql = "SELECT j.*, u.name as company_name 
                 FROM jobs j 
@@ -191,14 +184,14 @@ class Job extends Model {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /* ================= COUNT BY RECRUITER ================= */
+    // COUNT BY RECRUITER
     public function countByRecruiter($recruiterId) {
         $stmt = $this->conn->prepare("SELECT COUNT(*) FROM jobs WHERE recruiter_id = ?");
         $stmt->execute([$recruiterId]);
         return $stmt->fetchColumn();
     }
 
-    /* ================= GET STATS ================= */
+    // GET STATS
     public function getStats() {
         return [
             'jobs' => $this->count(),
@@ -208,7 +201,7 @@ class Job extends Model {
         ];
     }
 
-    /* ================= PAGINATE ================= */
+    // PAGINATE
     public function paginate($limit, $offset, $filters = []) {
         $sql = "SELECT jobs.*, users.name AS recruiter
                 FROM jobs

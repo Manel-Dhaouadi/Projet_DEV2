@@ -1,32 +1,27 @@
 <?php
 require_once "../app/core/Controller.php";
 require_once "../app/models/Job.php";
-require_once "../app/models/Category.php";
 require_once "../app/models/User.php";
 
 class JobController extends Controller {
     
     private $jobModel;
-    private $categoryModel;
 
     public function __construct() {
         $this->jobModel = new Job();
-        $this->categoryModel = new Category();
     }
 
     public function index() {
         $filters = [
             'keyword' => $_GET['keyword'] ?? '',
             'type' => $_GET['type'] ?? '',
-            'city' => $_GET['city'] ?? '',
-            'category' => $_GET['category'] ?? ''
+            'city' => $_GET['city'] ?? ''
         ];
 
         $jobs = $this->jobModel->search($filters);
         
         $data = [
             'jobs' => $jobs,
-            'categories' => $this->categoryModel->getAllWithCount(),
             'filters' => $filters,
             'totalJobs' => count($jobs)
         ];
@@ -35,7 +30,6 @@ class JobController extends Controller {
     }
 
     public function create() {
-        // Vérifier si l'utilisateur est connecté et est recruteur
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'recruiter') {
             $_SESSION['error'] = "Accès non autorisé";
             header("Location: index.php?action=login");
@@ -51,7 +45,6 @@ class JobController extends Controller {
                 'city' => $_POST['city'] ?? '',
                 'deadline' => $_POST['deadline'] ?? '',
                 'salary' => $_POST['salary'] ?? '',
-                'category_id' => $_POST['category_id'] ?? null,
                 'featured' => 0,
                 'created_at' => date('Y-m-d H:i:s')
             ];
@@ -65,15 +58,10 @@ class JobController extends Controller {
             }
         }
 
-        $data = [
-            'categories' => $this->categoryModel->getCategories()
-        ];
-
-        $this->view('jobs/create', $data);
+        $this->view('jobs/create');
     }
 
     public function edit() {
-        // Vérifier si l'utilisateur est connecté et est recruteur
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'recruiter') {
             $_SESSION['error'] = "Accès non autorisé";
             header("Location: index.php?action=login");
@@ -96,8 +84,7 @@ class JobController extends Controller {
                 'type' => $_POST['type'] ?? '',
                 'city' => $_POST['city'] ?? '',
                 'deadline' => $_POST['deadline'] ?? '',
-                'salary' => $_POST['salary'] ?? '',
-                'category_id' => $_POST['category_id'] ?? null
+                'salary' => $_POST['salary'] ?? ''
             ];
 
             if ($this->jobModel->update($id, $data)) {
@@ -110,15 +97,13 @@ class JobController extends Controller {
         }
 
         $data = [
-            'job' => $job,
-            'categories' => $this->categoryModel->getCategories()
+            'job' => $job
         ];
 
         $this->view('jobs/edit', $data);
     }
 
     public function delete() {
-        // Vérifier si l'utilisateur est connecté et est recruteur
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'recruiter') {
             $_SESSION['error'] = "Accès non autorisé";
             header("Location: index.php?action=login");
@@ -149,16 +134,10 @@ class JobController extends Controller {
 
         $userModel = new User();
         $company = $userModel->find($job['recruiter_id']);
-        
-        $category = null;
-        if (!empty($job['category_id'])) {
-            $category = $this->categoryModel->find($job['category_id']);
-        }
 
         $data = [
             'job' => $job,
-            'company' => $company,
-            'category' => $category
+            'company' => $company
         ];
 
         $this->view('jobs/show', $data);

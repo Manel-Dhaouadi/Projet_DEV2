@@ -45,13 +45,17 @@
             </div>
             
             <div class="form-group">
-                <label for="register-phone">Téléphone (optionnel)</label>
-                <input type="tel" 
-                       id="register-phone" 
-                       name="phone" 
-                       placeholder="+216 XX XXX XXX"
-                       autocomplete="tel">
-            </div>
+    <label for="register-role">Vous êtes</label>
+    <select name="role" id="register-role" required>
+        <option value="candidate">Candidat</option>
+        <option value="recruiter">Recruteur</option>
+    </select>
+</div>
+
+<div class="form-group">
+    <label for="register-phone">Téléphone (optionnel)</label>
+    <input type="tel" id="register-phone" name="phone" placeholder="+216 XX XXX XXX">
+</div>
             
             <button type="submit" class="auth-btn">
                 <i class="fas fa-user-plus"></i> S'inscrire

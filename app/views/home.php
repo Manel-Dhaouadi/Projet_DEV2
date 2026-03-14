@@ -10,22 +10,22 @@
                 
                 <!-- Barre de recherche -->
                 <form action="index.php" method="GET" class="search-container">
-    <input type="hidden" name="action" value="jobs">
-    <div class="search-wrapper">
-        <div class="search-input-group">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" 
-                   id="search-keyword"
-                   name="keyword" 
-                   placeholder="Titre du poste, mots-clés..." 
-                   class="search-field"
-                   autocomplete="off">
-        </div>
-        <button type="submit" class="search-button">
-            <i class="fas fa-search"></i> Rechercher
-        </button>
-    </div>
-</form>
+                    <input type="hidden" name="action" value="jobs">
+                    <div class="search-wrapper">
+                        <div class="search-input-group">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" 
+                                   id="search-keyword"
+                                   name="keyword" 
+                                   placeholder="Titre du poste, mots-clés..." 
+                                   class="search-field"
+                                   autocomplete="off">
+                        </div>
+                        <button type="submit" class="search-button">
+                            <i class="fas fa-search"></i> Rechercher
+                        </button>
+                    </div>
+                </form>
 
                 <!-- Tags populaires -->
                 <div class="tags-container">
@@ -41,44 +41,44 @@
         </div>
     </section>
 
-<!-- Statistiques -->
-<section class="stats-panel">
-    <div class="container">
-        <div class="stats-grid">
-            <div class="stat-block">
-                <div class="stat-icon"><i class="fas fa-briefcase"></i></div>
-                <div class="stat-content">
-                    <div class="stat-number"><?= number_format($stats['jobs'] ?? 0) ?>+</div>
-                    <div class="stat-label">Offres d'emploi</div>
+    <!-- Statistiques -->
+    <section class="stats-panel">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-block">
+                    <div class="stat-icon"><i class="fas fa-briefcase"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-number"><?= number_format($stats['jobs'] ?? 0) ?>+</div>
+                        <div class="stat-label">Offres d'emploi</div>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="stat-block">
-                <div class="stat-icon"><i class="fas fa-building"></i></div>
-                <div class="stat-content">
-                    <div class="stat-number"><?= number_format($stats['companies'] ?? 2500) ?>+</div>
-                    <div class="stat-label">Entreprises</div>
+                
+                <div class="stat-block">
+                    <div class="stat-icon"><i class="fas fa-building"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-number"><?= number_format($stats['companies'] ?? 2500) ?>+</div>
+                        <div class="stat-label">Entreprises</div>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="stat-block">
-                <div class="stat-icon"><i class="fas fa-users"></i></div>
-                <div class="stat-content">
-                    <div class="stat-number"><?= number_format($stats['candidates'] ?? 10000) ?>+</div>
-                    <div class="stat-label">Candidats</div>
+                
+                <div class="stat-block">
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-number"><?= number_format($stats['candidates'] ?? 10000) ?>+</div>
+                        <div class="stat-label">Candidats</div>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="stat-block">
-                <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
-                <div class="stat-content">
-                    <div class="stat-number"><?= $stats['satisfaction'] ?? 98 ?>%</div>
-                    <div class="stat-label">Satisfaction</div>
+                
+                <div class="stat-block">
+                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-number"><?= $stats['satisfaction'] ?? 98 ?>%</div>
+                        <div class="stat-label">Satisfaction</div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
     <!-- Offres à la une -->
     <?php if (!empty($featuredJobs)): ?>
@@ -122,12 +122,52 @@
     </section>
     <?php endif; ?>
 
-    <!-- Catégories -->
-    <section class="categories-panel">
+    <!-- Comment ça marche -->
+    <section class="how-it-works-panel">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Explorez par <span class="gradient-text">catégorie</span></h2>
-                <p class="section-description">Trouvez l'offre qui correspond à votre profil</p>
+                <h2 class="section-title">Comment <span class="gradient-text">ça marche ?</span></h2>
+                <p class="section-description">Trouvez votre prochain job en 3 étapes simples</p>
             </div>
 
-           
+            <div class="steps-container">
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <div class="step-icon"><i class="fas fa-user-plus"></i></div>
+                    <h3>Créez votre compte</h3>
+                    <p>Inscrivez-vous gratuitement en quelques clics</p>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <div class="step-icon"><i class="fas fa-search"></i></div>
+                    <h3>Trouvez l'offre idéale</h3>
+                    <p>Utilisez nos filtres avancés</p>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <div class="step-icon"><i class="fas fa-paper-plane"></i></div>
+                    <h3>Postulez en 1 clic</h3>
+                    <p>Envoyez votre candidature</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-panel">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Prêt à commencer votre carrière ?</h2>
+                <p>Rejoignez des milliers de candidats qui ont déjà trouvé leur opportunité</p>
+                <div class="cta-buttons">
+                    <a href="?action=register&role=candidate" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> S'inscrire
+                    </a>
+                    <a href="?action=register&role=recruiter" class="btn btn-outline">
+                        <i class="fas fa-building"></i> Publier une offre
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
