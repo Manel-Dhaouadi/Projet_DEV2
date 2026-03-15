@@ -62,47 +62,48 @@ class JobController extends Controller {
         $this->view('jobs/create');
     }
 
-    public function edit() {
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'recruiter') {
-            $_SESSION['error'] = "Accès non autorisé";
-            header("Location: index.php?action=login");
-            exit;
-        }
+public function edit() {
+    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'recruiter') {
+        $_SESSION['error'] = "Accès non autorisé";
+        header("Location: index.php?action=login");
+        exit;
+    }
 
-        $id = $_GET['id'] ?? 0;
-        $job = $this->jobModel->find($id);
+    $id = $_GET['id'] ?? 0;
+    $job = $this->jobModel->find($id);
 
-        if (!$job || $job['recruiter_id'] != $_SESSION['user']['id']) {
-            $_SESSION['error'] = 'Offre non trouvée';
-            header("Location: index.php?action=dashboard");
-            exit;
-        }
+    if (!$job || $job['recruiter_id'] != $_SESSION['user']['id']) {
+        $_SESSION['error'] = 'Offre non trouvée';
+        header("Location: index.php?action=dashboard");
+        exit;
+    }
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = [
-                'title' => $_POST['title'] ?? '',
-                'description' => $_POST['description'] ?? '',
-                'type' => $_POST['type'] ?? '',
-                'city' => $_POST['city'] ?? '',
-                'deadline' => $_POST['deadline'] ?? '',
-                'salary' => $_POST['salary'] ?? ''
-            ];
-
-            if ($this->jobModel->update($id, $data)) {
-                $_SESSION['success'] = 'Offre modifiée avec succès';
-                header("Location: index.php?action=dashboard");
-                exit;
-            } else {
-                $_SESSION['error'] = 'Erreur lors de la modification';
-            }
-        }
-
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data = [
-            'job' => $job
+            'title' => $_POST['title'] ?? '',
+            'description' => $_POST['description'] ?? '',
+            'type' => $_POST['type'] ?? '',
+            'city' => $_POST['city'] ?? '',
+            'deadline' => $_POST['deadline'] ?? '',
+            'salary' => $_POST['salary'] ?? '',
+            'featured' => isset($_POST['featured']) ? 1 : 0  // Ajout de featured
         ];
 
-        $this->view('jobs/edit', $data);
+        if ($this->jobModel->update($id, $data)) {
+            $_SESSION['success'] = 'Offre modifiée avec succès';
+            header("Location: index.php?action=dashboard");
+            exit;
+        } else {
+            $_SESSION['error'] = 'Erreur lors de la modification';
+        }
     }
+
+    $data = [
+        'job' => $job
+    ];
+
+    $this->view('jobs/edit', $data);
+}
 
     public function delete() {
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'recruiter') {

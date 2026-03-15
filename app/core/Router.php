@@ -116,6 +116,31 @@ class Router {
                 (new AdminController())->addJob();
                 break;
 
+            case "applications":
+    require "../app/controllers/ApplicationController.php";
+    (new ApplicationController())->index();
+    break;
+
+    /* ========= APPLICATIONS ========= */
+case "apply":
+    require "../app/controllers/ApplicationController.php";
+    (new ApplicationController())->apply();
+    break;
+
+case "myApplications":
+    require "../app/controllers/ApplicationController.php";
+    (new ApplicationController())->myApplications();
+    break;
+
+case "applications":
+    require "../app/controllers/ApplicationController.php";
+    (new ApplicationController())->index();
+    break;
+
+case "updateStatus":
+    require "../app/controllers/ApplicationController.php";
+    (new ApplicationController())->updateStatus();
+    break;
             /* ========= DEFAULT 404 ========= */
             default:
                 require "../app/controllers/ErrorController.php";
