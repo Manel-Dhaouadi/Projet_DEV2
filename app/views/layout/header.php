@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projet_DEV2 - Plateforme d'emploi</title>
+    <title>LinkedIn - Plateforme d'emploi</title>
     
     <!-- Chemin CSS corrigé -->
     <link rel="stylesheet" href="/Projet_DEV2/public/assets/css/style.css">
@@ -18,7 +18,7 @@
 <body>
     <nav>
         <div class="nav-brand">
-            <a href="/Projet_DEV2/public/?action=home">Projet_DEV2</a>
+            <a href="/Projet_DEV2/public/?action=home">LinkedIn</a>
         </div>
         
         <div class="nav-links">
