@@ -10,6 +10,13 @@ class User extends Model {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Récupérer tous les recruteurs
+    public function getRecruiters() {
+        $stmt = $this->conn->prepare("SELECT id, name, email FROM users WHERE role = 'recruiter' ORDER BY name ASC");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     // Compter tous les utilisateurs
     public function countUsers() {
         $stmt = $this->conn->query("SELECT COUNT(*) FROM users");

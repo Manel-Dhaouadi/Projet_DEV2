@@ -1,21 +1,53 @@
-<h2>Modifier Offre</h2>
+<div class="container">
+    <div class="auth-card">
+        <h2>Modifier l'offre</h2>
+        
+        <?php if (isset($_SESSION['error'])): ?>
+            <div class="alert alert-danger"><?= $_SESSION['error'] ?></div>
+            <?php unset($_SESSION['error']); ?>
+        <?php endif; ?>
 
-<form method="POST">
+        <form method="POST" class="auth-form">
+            <input type="hidden" name="id" value="<?= $job['id'] ?>">
 
-<input type="hidden" name="id" value="<?= $job['id'] ?>">
+            <div class="form-group">
+                <label for="title">Titre du poste</label>
+                <input type="text" id="title" name="title" value="<?= htmlspecialchars($job['title']) ?>" required>
+            </div>
 
-<input type="text" name="title" value="<?= $job['title'] ?>">
-<textarea name="description"><?= $job['description'] ?></textarea>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="6" required><?= htmlspecialchars($job['description']) ?></textarea>
+            </div>
 
-<select name="type">
-<option value="CDI">CDI</option>
-<option value="Stage">Stage</option>
-<option value="Alternance">Alternance</option>
-</select>
+            <div class="form-group">
+                <label for="type">Type de contrat</label>
+                <select id="type" name="type" required>
+                    <option value="CDI" <?= $job['type'] == 'CDI' ? 'selected' : '' ?>>CDI</option>
+                    <option value="Stage" <?= $job['type'] == 'Stage' ? 'selected' : '' ?>>Stage</option>
+                    <option value="Alternance" <?= $job['type'] == 'Alternance' ? 'selected' : '' ?>>Alternance</option>
+                </select>
+            </div>
 
-<input type="text" name="city" value="<?= $job['city'] ?>">
-<input type="date" name="deadline" value="<?= $job['deadline'] ?>">
+            <div class="form-group">
+                <label for="city">Ville</label>
+                <input type="text" id="city" name="city" value="<?= htmlspecialchars($job['city']) ?>" required>
+            </div>
 
-<button type="submit">Update</button>
+            <div class="form-group">
+                <label for="deadline">Date limite</label>
+                <input type="date" id="deadline" name="deadline" value="<?= $job['deadline'] ?>" required>
+            </div>
 
-</form>
+            <div class="form-group">
+                <label for="salary">Salaire (optionnel)</label>
+                <input type="text" id="salary" name="salary" value="<?= htmlspecialchars($job['salary'] ?? '') ?>" placeholder="ex: 1500 DT">
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Modifier</button>
+                <a href="?action=jobs" class="btn btn-outline">Annuler</a>
+            </div>
+        </form>
+    </div>
+</div>

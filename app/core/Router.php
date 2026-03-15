@@ -111,6 +111,11 @@ class Router {
                 (new AdminController())->addUser();
                 break;
 
+            case "admin-add-job":
+                require "../app/controllers/AdminController.php";
+                (new AdminController())->addJob();
+                break;
+
             /* ========= DEFAULT 404 ========= */
             default:
                 require "../app/controllers/ErrorController.php";

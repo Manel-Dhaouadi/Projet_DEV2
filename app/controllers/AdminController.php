@@ -79,7 +79,6 @@ class AdminController extends Controller {
                 $_SESSION['error'] = "Erreur lors de l'ajout";
             }
             
-            // REDIRECTION VERS LE DASHBOARD
             header("Location: index.php?action=admin-dashboard");
             exit;
         }
@@ -126,7 +125,6 @@ class AdminController extends Controller {
                 }
             }
             
-            // REDIRECTION VERS LE DASHBOARD
             header("Location: index.php?action=admin-dashboard");
             exit;
         }
@@ -141,6 +139,40 @@ class AdminController extends Controller {
         $this->view("admin/edit-user", ['user' => $user]);
     }
 
+    // ========== AJOUTER UNE OFFRE ==========
+    public function addJob() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $jobModel = new Job();
+            
+            $data = [
+                'recruiter_id' => $_POST['recruiter_id'] ?? null,
+                'title' => $_POST['title'] ?? '',
+                'description' => $_POST['description'] ?? '',
+                'type' => $_POST['type'] ?? '',
+                'city' => $_POST['city'] ?? '',
+                'deadline' => $_POST['deadline'] ?? '',
+                'salary' => $_POST['salary'] ?? '',
+                'featured' => isset($_POST['featured']) ? 1 : 0,
+                'created_at' => date('Y-m-d H:i:s')
+            ];
+
+            if ($jobModel->create($data)) {
+                $_SESSION['success'] = "Offre ajoutée avec succès";
+            } else {
+                $_SESSION['error'] = "Erreur lors de l'ajout de l'offre";
+            }
+            
+            header("Location: index.php?action=admin-dashboard");
+            exit;
+        }
+        
+        // Récupérer la liste des recruteurs pour le formulaire
+        $userModel = new User();
+        $recruiters = $userModel->getRecruiters();
+        
+        $this->view("admin/add-job", ['recruiters' => $recruiters]);
+    }
+
     // ========== MODIFIER UNE OFFRE ==========
     public function editJob() {
         $id = $_GET['id'] ?? 0;
@@ -153,7 +185,8 @@ class AdminController extends Controller {
                 'type' => $_POST['type'] ?? '',
                 'city' => $_POST['city'] ?? '',
                 'deadline' => $_POST['deadline'] ?? '',
-                'salary' => $_POST['salary'] ?? ''
+                'salary' => $_POST['salary'] ?? '',
+                'featured' => isset($_POST['featured']) ? 1 : 0
             ];
 
             if ($jobModel->update($id, $data)) {
@@ -162,7 +195,6 @@ class AdminController extends Controller {
                 $_SESSION['error'] = "Erreur lors de la modification";
             }
             
-            // REDIRECTION VERS LE DASHBOARD
             header("Location: index.php?action=admin-dashboard");
             exit;
         }
@@ -195,7 +227,6 @@ class AdminController extends Controller {
             }
         }
         
-        // REDIRECTION VERS LE DASHBOARD
         header("Location: index.php?action=admin-dashboard");
         exit;
     }
@@ -213,7 +244,6 @@ class AdminController extends Controller {
             $_SESSION['error'] = "Offre non trouvée";
         }
         
-        // REDIRECTION VERS LE DASHBOARD
         header("Location: index.php?action=admin-dashboard");
         exit;
     }

@@ -12,6 +12,9 @@
             <a href="?action=admin-add-user" class="btn btn-primary">
                 <i class="fas fa-user-plus"></i> Ajouter un utilisateur
             </a>
+            <a href="?action=admin-add-job" class="btn btn-success" style="margin-left: 10px;">
+                <i class="fas fa-briefcase"></i> Ajouter une offre
+            </a>
         </div>
     </div>
 
@@ -58,9 +61,9 @@
         </div>
     </div>
 
-    <!-- Graphiques et analyses -->
-    <div class="analytics-section">
-        <div class="analytics-card">
+    <!-- Graphique de répartition - CENTRÉ -->
+    <div style="display: flex; justify-content: center; margin: 2rem 0;">
+        <div class="analytics-card" style="width: 100%; max-width: 600px;">
             <div class="card-header">
                 <h3><i class="fas fa-chart-pie"></i> Répartition des utilisateurs</h3>
                 <span class="badge">Cette semaine</span>
@@ -95,34 +98,6 @@
                             <span>Admins (<?= number_format($admins) ?>)</span>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="analytics-card">
-            <div class="card-header">
-                <h3><i class="fas fa-chart-line"></i> Évolution des inscriptions</h3>
-                <span class="badge">30 derniers jours</span>
-            </div>
-            <div class="card-body">
-                <div class="bar-chart">
-                    <?php 
-                    // Données simulées (vous pouvez les remplacer par des données réelles)
-                    $weeks = ['Semaine 1', 'Semaine 2', 'Semaine 3', 'Semaine 4'];
-                    $values = [45, 52, 38, 67];
-                    $maxValue = max($values) ?: 100;
-                    
-                    foreach ($weeks as $index => $week):
-                        $percent = $maxValue > 0 ? round(($values[$index] / $maxValue) * 100) : 0;
-                    ?>
-                    <div class="bar-item">
-                        <span class="bar-label"><?= $week ?></span>
-                        <div class="bar-progress">
-                            <div class="bar-fill" style="width: <?= $percent ?>%;"></div>
-                        </div>
-                        <span class="bar-value"><?= $values[$index] ?></span>
-                    </div>
-                    <?php endforeach; ?>
                 </div>
             </div>
         </div>
@@ -188,13 +163,11 @@
                             <td>
                                 <div class="action-buttons">
                                     <?php if ($user['id'] != $_SESSION['user']['id']): ?>
-                                        <!-- Bouton Modifier -->
                                         <a href="?action=admin-edit-user&id=<?= $user['id'] ?>" 
                                            class="btn-icon edit" 
                                            title="Modifier">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <!-- Bouton Supprimer -->
                                         <a href="?action=deleteUser&id=<?= $user['id'] ?>" 
                                            class="btn-icon delete" 
                                            title="Supprimer"
@@ -223,7 +196,12 @@
             <div class="table-container">
                 <div class="table-header">
                     <h3>Liste des offres (<?= count($jobs ?? []) ?>)</h3>
-                    <a href="?action=jobs" class="btn btn-sm btn-outline">Voir toutes les offres</a>
+                    <div class="table-actions">
+                        <a href="?action=admin-add-job" class="btn btn-sm btn-primary">
+                            <i class="fas fa-plus"></i> Ajouter une offre
+                        </a>
+                        <a href="?action=jobs" class="btn btn-sm btn-outline">Voir toutes les offres</a>
+                    </div>
                 </div>
                 
                 <?php if (!empty($jobs)): ?>
@@ -250,13 +228,11 @@
                             <td><?= date('d/m/Y', strtotime($job['created_at'])) ?></td>
                             <td>
                                 <div class="action-buttons">
-                                    <!-- Bouton Modifier offre -->
                                     <a href="?action=admin-edit-job&id=<?= $job['id'] ?>" 
                                        class="btn-icon edit" 
                                        title="Modifier">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <!-- Bouton Supprimer offre -->
                                     <a href="?action=deleteJobAdmin&id=<?= $job['id'] ?>" 
                                        class="btn-icon delete" 
                                        title="Supprimer"
