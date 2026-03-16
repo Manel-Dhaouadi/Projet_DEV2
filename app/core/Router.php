@@ -72,13 +72,37 @@ class Router {
                 (new ApplicationController())->myApplications();
                 break;
 
+            case "applications":
+                require "../app/controllers/ApplicationController.php";
+                (new ApplicationController())->index();
+                break;
+
+            case "updateStatus":
+                require "../app/controllers/ApplicationController.php";
+                (new ApplicationController())->updateStatus();
+                break;
+
+            case "download-ultra":
+                require "../app/controllers/ApplicationController.php";
+                (new ApplicationController())->downloadUltraSimple();
+                break;
+
+            case "viewApplication":
+                require "../app/controllers/ApplicationController.php";
+                (new ApplicationController())->viewApplication();
+                break;
+
+            case "deleteApplication":
+                require "../app/controllers/ApplicationController.php";
+                (new ApplicationController())->delete();
+                break;
+
             /* ========= ADMIN ========= */
             case "admin":
                 require "../app/controllers/AdminController.php";
                 (new AdminController())->index();
                 break;
 
-            /* ========= ADMIN DASHBOARD ========= */
             case "admin-dashboard":
                 require "../app/controllers/AdminController.php";
                 (new AdminController())->dashboard();
@@ -94,7 +118,6 @@ class Router {
                 (new AdminController())->deleteJob();
                 break;
 
-            /* ========= ADMIN EDIT ========= */
             case "admin-edit-user":
                 require "../app/controllers/AdminController.php";
                 (new AdminController())->editUser();
@@ -105,7 +128,6 @@ class Router {
                 (new AdminController())->editJob();
                 break;
 
-            /* ========= ADMIN AJOUT ========= */
             case "admin-add-user":
                 require "../app/controllers/AdminController.php";
                 (new AdminController())->addUser();
@@ -116,31 +138,6 @@ class Router {
                 (new AdminController())->addJob();
                 break;
 
-            case "applications":
-    require "../app/controllers/ApplicationController.php";
-    (new ApplicationController())->index();
-    break;
-
-    /* ========= APPLICATIONS ========= */
-case "apply":
-    require "../app/controllers/ApplicationController.php";
-    (new ApplicationController())->apply();
-    break;
-
-case "myApplications":
-    require "../app/controllers/ApplicationController.php";
-    (new ApplicationController())->myApplications();
-    break;
-
-case "applications":
-    require "../app/controllers/ApplicationController.php";
-    (new ApplicationController())->index();
-    break;
-
-case "updateStatus":
-    require "../app/controllers/ApplicationController.php";
-    (new ApplicationController())->updateStatus();
-    break;
             /* ========= DEFAULT 404 ========= */
             default:
                 require "../app/controllers/ErrorController.php";

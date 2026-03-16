@@ -15,7 +15,7 @@ class AuthController extends Controller {
                 'password' => password_hash($_POST['password'] ?? '', PASSWORD_DEFAULT),
                 'role' => $_POST['role'] ?? 'candidate', // Valeur par défaut si non défini
                 'city' => $_POST['city'] ?? '',
-                'phone' => $_POST['phone'] ?? '' // Ajout du champ phone
+                'phone' => $_POST['phone'] ?? '' 
             ];
 
             $user = new User();

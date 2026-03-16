@@ -18,7 +18,7 @@ class JobController extends Controller {
             'city' => $_GET['city'] ?? ''
         ];
 
-        // Récupérer TOUTES les offres avec les filtres (sans pagination)
+        // Récupérer TOUTES les offres avec les filtres
         $jobs = $this->jobModel->getAllJobsFiltered($filters);
         
         $data = [

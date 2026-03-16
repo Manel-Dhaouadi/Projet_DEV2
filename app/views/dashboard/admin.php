@@ -61,7 +61,7 @@
         </div>
     </div>
 
-    <!-- Graphique de répartition - CENTRÉ -->
+    <!-- Graphique de répartition -->
     <div style="display: flex; justify-content: center; margin: 2rem 0;">
         <div class="analytics-card" style="width: 100%; max-width: 600px;">
             <div class="card-header">

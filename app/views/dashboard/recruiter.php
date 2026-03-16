@@ -1,5 +1,3 @@
-
-
 <div class="recruiter-dashboard">
     <!-- En-tête du dashboard -->
     <div class="dashboard-header">
@@ -9,11 +7,6 @@
                 Espace Recruteur
             </h1>
             <p class="welcome-text">Bienvenue, <?= htmlspecialchars($_SESSION['user']['name'] ?? 'Recruteur') ?> 👋</p>
-        </div>
-        <div class="header-actions">
-            <a href="?action=createJob" class="btn btn-primary">
-                <i class="fas fa-plus-circle"></i> Publier une offre
-            </a>
         </div>
     </div>
 
@@ -35,7 +28,7 @@
             </div>
             <div class="stat-content">
                 <div class="stat-value"><?= $stats['totalApplications'] ?? 0 ?></div>
-                <div class="stat-label">Candidatures reçues</div>
+                <div class="stat-label">Candidatures</div>
             </div>
         </div>
 
@@ -68,8 +61,6 @@
                             <th>Type</th>
                             <th>Ville</th>
                             <th>Date</th>
-                            <th>Statut</th>
-                            <th>Candidatures</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -95,29 +86,12 @@
                             <td>
                                 <?php 
                                 if (isset($job['created_at']) && !empty($job['created_at'])) {
-                                    // S'assurer que la date est bien formatée
                                     $date = new DateTime($job['created_at']);
                                     echo $date->format('d/m/Y');
                                 } else {
                                     echo 'Date inconnue';
                                 }
                                 ?>
-                            </td>
-                            <td>
-                                <?php 
-                                $today = date('Y-m-d');
-                                $deadline = $job['deadline'] ?? '';
-                                if(!empty($deadline) && $deadline < $today): 
-                                ?>
-                                    <span class="status-badge expired">Expirée</span>
-                                <?php else: ?>
-                                    <span class="status-badge active">Active</span>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <span class="applications-count">
-                                    <?= isset($job['applications_count']) ? $job['applications_count'] : 0 ?>
-                                </span>
                             </td>
                             <td class="actions">
                                 <a href="?action=editJob&id=<?= $job['id'] ?>" class="btn-icon edit" title="Modifier">
@@ -188,6 +162,13 @@
                 <a href="?action=viewApplication&id=<?= $app['id'] ?>" class="btn-icon" title="Voir">
                     <i class="fas fa-eye"></i>
                 </a>
+                <!-- BOUTON SUPPRIMER AVEC PARAMÈTRE from=dashboard -->
+                <a href="?action=deleteApplication&id=<?= $app['id'] ?>&from=dashboard" 
+                   class="btn-icon delete" 
+                   title="Supprimer"
+                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette candidature ?')">
+                    <i class="fas fa-trash"></i>
+                </a>
             </div>
         </div>
         <?php 
@@ -204,3 +185,40 @@
     </div>
     <?php endif; ?>
 </div>
+
+<style>
+.application-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.application-actions .btn-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    text-decoration: none;
+    transition: all 0.2s;
+    background: white;
+    border: 1px solid #e2e8f0;
+}
+
+.application-actions .btn-icon:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.application-actions .btn-icon.delete {
+    color: #dc2626;
+}
+
+.application-actions .btn-icon.delete:hover {
+    background: #fee2e2;
+    color: #b91c1c;
+    border-color: #dc2626;
+}
+</style>

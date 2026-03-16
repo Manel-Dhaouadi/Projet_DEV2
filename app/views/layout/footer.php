@@ -1,6 +1,6 @@
 <hr>
 <footer>
-    &copy; <?= date('Y') ?> Projet_DEV2
+    &copy; <?= date('Y') ?> LinkedIn
 </footer>
 </body>
 </html>

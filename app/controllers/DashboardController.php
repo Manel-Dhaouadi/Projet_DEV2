@@ -26,7 +26,7 @@ class DashboardController extends Controller {
     private function adminDashboard() {
         $userModel = new User();
         $jobModel = new Job();
-
+ // Récupération des statistiques
         $data = [
             'users' => $userModel->getAllUsers(),
             'jobs' => $jobModel->getAllJobs(),
@@ -61,10 +61,23 @@ class DashboardController extends Controller {
 
     private function candidateDashboard() {
         $applicationModel = new Application();
+        $jobModel = new Job();
         $candidateId = $_SESSION['user']['id'];
 
+        // Récupérer les candidatures du candidat
+        $applications = $applicationModel->getApplicationsByCandidate($candidateId);
+        
+        // Récupérer les offres récentes pour recommandations
+        $recentJobs = $jobModel->getRecent(6);
+        
+        // Ajouter un pourcentage de match aléatoire (à améliorer plus tard)
+        foreach ($recentJobs as &$job) {
+            $job['match_percentage'] = rand(70, 98);
+        }
+
         $data = [
-            'applications' => $applicationModel->getApplicationsByCandidate($candidateId),
+            'applications' => $applications,
+            'recentJobs' => $recentJobs,
             'stats' => [
                 'totalApplications' => $applicationModel->countByCandidate($candidateId),
                 'pending' => $applicationModel->countByCandidateAndStatus($candidateId, 'pending'),

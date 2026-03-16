@@ -4,23 +4,22 @@ require_once "../app/core/Model.php";
 class Application extends Model {
     protected $table = 'applications';
 
-    // ================= CONSTRUCTEUR =================
     public function __construct() {
         parent::__construct();
     }
 
     // ================= APPLY =================
-    public function apply($jobId, $userId, $cv) {
-        $sql = "INSERT INTO applications (job_id, user_id, cv, status, created_at) 
-                VALUES (?, ?, ?, 'pending', NOW())";
+    public function apply($jobId, $userId, $cv, $cv_type = 'text') {
+        $sql = "INSERT INTO applications (job_id, user_id, cv, cv_type, status, created_at) 
+                VALUES (?, ?, ?, ?, 'pending', NOW())";
         
         $stmt = $this->conn->prepare($sql);
-        return $stmt->execute([$jobId, $userId, $cv]);
+        return $stmt->execute([$jobId, $userId, $cv, $cv_type]);
     }
 
     // ================= GET APPLICATIONS BY CANDIDATE =================
     public function getApplicationsByCandidate($userId) {
-        $sql = "SELECT a.*, j.title, j.type, j.city, u.name as company_name 
+        $sql = "SELECT a.*, j.title, j.type, j.city, j.id as job_id, u.name as company_name 
                 FROM applications a 
                 JOIN jobs j ON a.job_id = j.id 
                 JOIN users u ON j.recruiter_id = u.id 
@@ -48,7 +47,7 @@ class Application extends Model {
 
     // ================= GET JOB APPLICATIONS =================
     public function getJobApplications($jobId) {
-        $sql = "SELECT a.*, u.name, u.email, u.phone 
+        $sql = "SELECT a.*, u.name as candidate_name, u.email, u.phone 
                 FROM applications a 
                 JOIN users u ON a.user_id = u.id 
                 WHERE a.job_id = ? 
@@ -102,5 +101,12 @@ class Application extends Model {
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([$userId, $status]);
         return $stmt->fetchColumn();
+    }
+    
+    /**
+     * Obtenir la connexion à la base de données
+     */
+    public function getConnection() {
+        return $this->conn;
     }
 }

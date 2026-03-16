@@ -1,7 +1,7 @@
 <!-- app/views/applications/myApplications.php -->
 <div class="my-applications-page">
     <div class="page-header">
-        <h1><i class="fas fa-file-signature"></i> Mes Candidatures</h1>
+        <h1><i class="fas fa-file-signature"></i> Mes candidatures</h1>
         <a href="?action=jobs" class="btn btn-outline">
             <i class="fas fa-briefcase"></i> Voir les offres
         </a>
@@ -37,10 +37,9 @@
                     <div class="application-card-footer">
                         <span class="status-badge <?= $app['status'] ?>">
                             <?php 
-                            $status = $app['status'] ?? 'pending';
-                            if($status == 'pending') echo 'En attente';
-                            elseif($status == 'accepted') echo 'Acceptée';
-                            elseif($status == 'rejected') echo 'Refusée';
+                            if($app['status'] == 'pending') echo 'En attente';
+                            elseif($app['status'] == 'accepted') echo 'Acceptée';
+                            elseif($app['status'] == 'rejected') echo 'Refusée';
                             ?>
                         </span>
                         <a href="?action=job&id=<?= $app['job_id'] ?>" class="btn-view">
