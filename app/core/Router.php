@@ -96,6 +96,7 @@ class Router {
                 require "../app/controllers/ApplicationController.php";
                 (new ApplicationController())->delete();
                 break;
+                
 
             /* ========= ADMIN ========= */
             case "admin":
