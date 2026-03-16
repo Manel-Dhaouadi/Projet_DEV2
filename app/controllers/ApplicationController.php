@@ -15,11 +15,13 @@ class ApplicationController extends Controller {
      * Postuler à une offre (pour le candidat)
      */
     public function apply() {
+        // Vérifier si l'utilisateur est connecté
         if (!isset($_SESSION['user'])) {
             header("Location: index.php?action=login");
             exit;
         }
         
+        // Vérifier que c'est bien un candidat
         if ($_SESSION['user']['role'] !== 'candidate') {
             $_SESSION['error'] = "Seuls les candidats peuvent postuler";
             header("Location: index.php?action=jobs");
@@ -34,6 +36,7 @@ class ApplicationController extends Controller {
             exit;
         }
         
+        // Vérifier que l'offre existe
         $jobModel = new Job();
         $job = $jobModel->find($job_id);
         
@@ -43,19 +46,23 @@ class ApplicationController extends Controller {
             exit;
         }
         
+        // Traitement du formulaire
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $cv_content = "";
             $cv_type = "text";
             
+            // OPTION 1: Lien texte
             if (!empty($_POST['cv_link'])) {
                 $cv_content = $_POST['cv_link'];
                 $cv_type = "url";
             }
             
+            // OPTION 2: Upload de fichier
             if (isset($_FILES['cv_file']) && $_FILES['cv_file']['error'] === UPLOAD_ERR_OK) {
                 $file = $_FILES['cv_file'];
                 
+                // Vérifier l'extension
                 $fileType = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
                 if ($fileType != 'pdf') {
                     $_SESSION['error'] = "Seuls les fichiers PDF sont acceptés";
@@ -63,30 +70,46 @@ class ApplicationController extends Controller {
                     exit;
                 }
                 
+                // Vérifier la taille
                 if ($file['size'] > 5 * 1024 * 1024) {
                     $_SESSION['error'] = "Le fichier ne doit pas dépasser 5 Mo";
                     header("Location: index.php?action=apply&job_id=" . $job_id);
                     exit;
                 }
                 
+                // Lire le contenu
                 $cv_content = file_get_contents($file['tmp_name']);
                 
+                // Vérifier la signature PDF
                 if (substr($cv_content, 0, 4) !== '%PDF') {
                     $_SESSION['error'] = "Le fichier n'est pas un PDF valide";
                     header("Location: index.php?action=apply&job_id=" . $job_id);
                     exit;
                 }
                 
+                // Encoder en base64
                 $cv_content = base64_encode($cv_content);
                 $cv_type = "pdf";
             }
             
+            // Vérifier qu'un CV a été fourni
             if (empty($cv_content)) {
                 $_SESSION['error'] = "Veuillez fournir votre CV (lien ou fichier)";
                 header("Location: index.php?action=apply&job_id=" . $job_id);
                 exit;
             }
             
+            // Vérifier les doublons
+            $existingApplications = $this->applicationModel->getApplicationsByCandidate($_SESSION['user']['id']);
+            foreach ($existingApplications as $app) {
+                if ($app['job_id'] == $job_id) {
+                    $_SESSION['error'] = "Vous avez déjà postulé à cette offre";
+                    header("Location: index.php?action=job&id=" . $job_id);
+                    exit;
+                }
+            }
+            
+            // Enregistrer
             $result = $this->applicationModel->apply($job_id, $_SESSION['user']['id'], $cv_content, $cv_type);
             
             if ($result) {
@@ -94,12 +117,13 @@ class ApplicationController extends Controller {
                 header("Location: index.php?action=dashboard");
                 exit;
             } else {
-                $_SESSION['error'] = "❌ Erreur lors de l'envoi de la candidature";
+                $_SESSION['error'] = "❌ Erreur lors de l'envoi";
                 header("Location: index.php?action=apply&job_id=" . $job_id);
                 exit;
             }
         }
         
+        // Afficher le formulaire
         $data = [
             'job' => $job
         ];
@@ -108,9 +132,15 @@ class ApplicationController extends Controller {
     }
     
     /**
-     * Télécharger le CV d'un candidat
+     * Télécharger le CV
      */
     public function downloadUltraSimple() {
+        // Vérifier les droits
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'recruiter') {
+            header("Location: index.php?action=login");
+            exit;
+        }
+        
         $id = $_GET['id'] ?? 0;
         
         if (!$id) {
@@ -119,11 +149,7 @@ class ApplicationController extends Controller {
             exit;
         }
         
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'recruiter') {
-            header("Location: index.php?action=login");
-            exit;
-        }
-        
+        // Récupérer la candidature
         $conn = $this->applicationModel->getConnection();
         $sql = "SELECT a.*, j.recruiter_id, u.name as candidate_name 
                 FROM applications a 
@@ -141,30 +167,45 @@ class ApplicationController extends Controller {
             exit;
         }
         
+        // Vérifier que le recruteur a le droit
         if ($application['recruiter_id'] != $_SESSION['user']['id']) {
             $_SESSION['error'] = "Accès non autorisé";
             header("Location: index.php?action=dashboard");
             exit;
         }
         
-        $pdf_content = base64_decode($application['cv']);
-        
-        $temp_dir = __DIR__ . '/../../public/temp/';
-        if (!file_exists($temp_dir)) {
-            mkdir($temp_dir, 0777, true);
+        // Vérifier le type
+        if ($application['cv_type'] === 'pdf') {
+            // Décoder le PDF
+            $pdf_content = base64_decode($application['cv']);
+            
+            // Nettoyer les buffers
+            while (ob_get_level()) {
+                ob_end_clean();
+            }
+            
+            // Envoyer le PDF
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: attachment; filename="CV_' . $application['id'] . '.pdf"');
+            header('Content-Length: ' . strlen($pdf_content));
+            
+            echo $pdf_content;
+            exit;
+        } elseif ($application['cv_type'] === 'url') {
+            // Rediriger vers l'URL
+            header("Location: " . $application['cv']);
+            exit;
+        } else {
+            // Texte simple
+            header('Content-Type: text/plain; charset=utf-8');
+            header('Content-Disposition: attachment; filename="CV_' . $application['id'] . '.txt"');
+            echo $application['cv'];
+            exit;
         }
-        
-        $candidate_name = preg_replace('/[^a-zA-Z0-9]/', '_', $application['candidate_name'] ?? 'candidat');
-        $temp_file = $temp_dir . 'cv_' . $id . '_' . $candidate_name . '.pdf';
-        file_put_contents($temp_file, $pdf_content);
-        
-        $file_url = '/Projet_DEV2/public/temp/cv_' . $id . '_' . $candidate_name . '.pdf';
-        header("Location: " . $file_url);
-        exit;
     }
 
     /**
-     * Affiche les candidatures pour une offre (pour le recruteur)
+     * Affiche les candidatures pour une offre (recruteur)
      */
     public function index() {
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'recruiter') {
@@ -200,7 +241,7 @@ class ApplicationController extends Controller {
     }
     
     /**
-     * Affiche toutes les candidatures du candidat connecté
+     * Mes candidatures (candidat)
      */
     public function myApplications() {
         if (!isset($_SESSION['user'])) {
@@ -224,7 +265,7 @@ class ApplicationController extends Controller {
     }
     
     /**
-     * Mettre à jour le statut d'une candidature
+     * Mettre à jour le statut
      */
     public function updateStatus() {
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'recruiter') {
@@ -238,7 +279,7 @@ class ApplicationController extends Controller {
         
         if ($id && in_array($status, ['accepted', 'rejected'])) {
             $this->applicationModel->updateStatus($id, $status);
-            $_SESSION['success'] = "✅ Statut mis à jour avec succès";
+            $_SESSION['success'] = "✅ Statut mis à jour";
         }
         
         header("Location: index.php?action=applications&job_id=" . $job_id);
@@ -246,7 +287,7 @@ class ApplicationController extends Controller {
     }
     
     /**
-     * Supprimer une candidature (pour le recruteur) - RESTE SUR LA MÊME PAGE
+     * Supprimer une candidature
      */
     public function delete() {
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'recruiter') {
@@ -255,54 +296,34 @@ class ApplicationController extends Controller {
         }
         
         $id = $_GET['id'] ?? 0;
-        $from = $_GET['from'] ?? 'dashboard'; 
+        $from = $_GET['from'] ?? 'dashboard';
         
         if (!$id) {
-            $_SESSION['error'] = "ID de candidature manquant";
+            $_SESSION['error'] = "ID manquant";
             header("Location: index.php?action=dashboard");
             exit;
         }
         
-        // Récupérer l'ID de l'offre pour la redirection
         $conn = $this->applicationModel->getConnection();
-        $sql = "SELECT a.*, j.recruiter_id, a.job_id 
-                FROM applications a 
-                JOIN jobs j ON a.job_id = j.id 
-                WHERE a.id = ?";
-        
+        $sql = "SELECT a.*, j.recruiter_id, a.job_id FROM applications a JOIN jobs j ON a.job_id = j.id WHERE a.id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$id]);
         $application = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        if (!$application) {
-            $_SESSION['error'] = "Candidature non trouvée";
+        if (!$application || $application['recruiter_id'] != $_SESSION['user']['id']) {
+            $_SESSION['error'] = "Non autorisé";
             header("Location: index.php?action=dashboard");
             exit;
         }
         
-        // Vérifier que le recruteur a le droit de supprimer cette candidature
-        if ($application['recruiter_id'] != $_SESSION['user']['id']) {
-            $_SESSION['error'] = "Vous n'êtes pas autorisé à supprimer cette candidature";
-            header("Location: index.php?action=dashboard");
-            exit;
-        }
-        
-        $job_id = $application['job_id'];
-        
-        // Supprimer la candidature
         $sql = "DELETE FROM applications WHERE id = ?";
         $stmt = $conn->prepare($sql);
-        $result = $stmt->execute([$id]);
+        $stmt->execute([$id]);
         
-        if ($result) {
-            $_SESSION['success'] = "✅ Candidature supprimée avec succès";
-        } else {
-            $_SESSION['error'] = "❌ Erreur lors de la suppression";
-        }
+        $_SESSION['success'] = "✅ Candidature supprimée";
         
-        // Redirection selon la provenance - RESTE SUR LA MÊME PAGE
         if ($from === 'applications') {
-            header("Location: index.php?action=applications&job_id=" . $job_id);
+            header("Location: index.php?action=applications&job_id=" . $application['job_id']);
         } else {
             header("Location: index.php?action=dashboard");
         }
@@ -310,7 +331,7 @@ class ApplicationController extends Controller {
     }
     
     /**
-     * Afficher les détails d'une candidature
+     * Voir les détails d'une candidature
      */
     public function viewApplication() {
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'recruiter') {
@@ -321,7 +342,7 @@ class ApplicationController extends Controller {
         $id = $_GET['id'] ?? 0;
         
         if (!$id) {
-            $_SESSION['error'] = "ID de candidature manquant";
+            $_SESSION['error'] = "ID manquant";
             header("Location: index.php?action=dashboard");
             exit;
         }
